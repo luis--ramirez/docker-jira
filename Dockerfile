@@ -1,19 +1,16 @@
-FROM ubuntu:16.04
-
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get autoclean && \
-    apt-get clean && \
-    apt-get autoremove -y
+FROM debian:8.5
 
 COPY ./jira /opt/atlassian/jira
 
 EXPOSE 8080 8005
 
+RUN mkdir -p /var/atlassian/application-data/jira && \
+    groupadd jira && \
+    useradd -g jira jira && \
+    chown -R jira:jira /opt/atlassian/jira/ /var/atlassian/application-data/jira
+
 VOLUME ["/opt/atlassian/jira/", "/var/atlassian/application-data/jira"]
 
-RUN groupadd jira && \
-    useradd -g jira jira
+USER jira
 
-CMD chown -R jira:jira /opt/atlassian/jira/ /var/atlassian/application-data/jira && \
-    ./opt/atlassian/jira/bin/start-jira.sh -fg
+CMD ./opt/atlassian/jira/bin/start-jira.sh -fg
